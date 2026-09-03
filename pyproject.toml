@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "saturnday"
+version = "1.1.5"
+description = "Execution governor for AI-generated code — Guard, Run, and Repair in one package"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{name = "Waynestark Enterprises Limited", email = "onur@wselimited.com"}]
+maintainers = [{name = "Waynestark Enterprises Limited", email = "onur@wselimited.com"}]
+keywords = ["ai", "governance", "security", "code-review", "llm", "run", "repair", "autonomous-delivery"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Security",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = ["pyyaml>=6.0", "PyNaCl>=1.5.0"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+saturnday = "saturnday.cli:main"
+saturnday-devstral = "saturnday.devstral_cli:main"
+
+[project.urls]
+Homepage = "https://github.com/honouralexwill/saturnday"
+Repository = "https://github.com/honouralexwill/saturnday"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["saturnday*"]
+
+[tool.setuptools.package-data]
+saturnday = ["prompts/role_modes/*.md", "standards/*.md", "standards/*.txt", "standards/prompts/*.txt", "standards/docs/style/*.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-q"]
+asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "integration: marks tests that exercise real cross-package seams (skipped when deps unavailable)",
+]

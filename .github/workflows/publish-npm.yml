@@ -1,0 +1,82 @@
+name: Publish npm package
+
+# This workflow publishes an npm package from a subdirectory of the repository.
+# It is designed for future use when a JavaScript/TypeScript SDK or package
+# is added. Trigger via workflow_dispatch with the package path.
+#
+# Prerequisites:
+#   - NPM_TOKEN secret set in repository Settings → Secrets and variables → Actions
+#   - The package must have a valid package.json at the given package_path
+#
+# See RELEASING.md for full setup instructions.
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_path:
+        description: 'Path to npm package directory (relative to repo root)'
+        required: true
+        default: 'packages/sdk'
+      registry:
+        description: 'npm registry URL'
+        required: false
+        default: 'https://registry.npmjs.org'
+
+permissions:
+  contents: read
+  id-token: write  # Required for npm provenance (--provenance flag)
+
+jobs:
+  publish:
+    name: Pack, preflight, and publish
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: ${{ inputs.registry }}
+
+      - name: Install saturnday
+        run: pip install saturnday
+
+      - name: Pack tarball
+        working-directory: ${{ inputs.package_path }}
+        run: npm pack
+
+      - name: Run release preflight
+        working-directory: ${{ inputs.package_path }}
+        run: |
+          saturnday release-preflight \
+            --repo . \
+            --type npm \
+            --tarball *.tgz \
+            --manifest .saturnday-release-manifest.yaml \
+            --output .saturnday/evidence/release/publish-gate/
+
+      - name: Verify preflight passed
+        working-directory: ${{ inputs.package_path }}
+        run: |
+          python -c "
+          import json
+          from pathlib import Path
+          evidence = json.loads(Path('.saturnday/evidence/release/publish-gate/evidence.json').read_text())
+          assert evidence['disposition'] == 'PASS', f'Preflight FAILED: {evidence[\"disposition_reasons\"]}'
+          print('Release preflight PASSED')
+          "
+
+      - name: Upload preflight evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-release-preflight-evidence
+          path: ${{ inputs.package_path }}/.saturnday/evidence/release/publish-gate/
+          retention-days: 90
+
+      - name: Publish to npm
+        working-directory: ${{ inputs.package_path }}
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

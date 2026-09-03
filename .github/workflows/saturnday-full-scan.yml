@@ -1,0 +1,40 @@
+name: Saturnday Full Scan
+
+on:
+  workflow_dispatch:  # Manual trigger from Actions tab
+  schedule:
+    - cron: '0 3 * * 1'  # Weekly on Monday at 3am UTC
+
+permissions:
+  contents: read
+
+jobs:
+  full-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Saturnday
+        run: pip install -e .
+
+      - name: Run full codebase scan
+        run: |
+          FIRST_COMMIT=$(git rev-list --max-parents=0 HEAD)
+          python scripts/check_diff.py \
+            --repo . \
+            --diff "$FIRST_COMMIT..HEAD" \
+            --output /tmp/saturnday-evidence \
+            --auto-install-deps
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: saturnday-evidence
+          path: /tmp/saturnday-evidence/

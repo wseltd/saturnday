@@ -1,0 +1,141 @@
+repos:
+  - repo: sqlalchemy/sqlalchemy
+    url: https://github.com/sqlalchemy/sqlalchemy
+    licence: MIT
+    include:
+      source_paths:
+        - lib/sqlalchemy
+      test_paths:
+        - test
+      docs_paths:
+        - doc
+      changelog_paths:
+        - doc/build/changelog
+    notes: Strong API boundaries, module decomposition, documentation discipline
+
+  - repo: encode/httpx
+    url: https://github.com/encode/httpx
+    licence: BSD-3-Clause
+    include:
+      source_paths:
+        - httpx
+      test_paths:
+        - tests
+      docs_paths:
+        - docs
+      changelog_paths:
+        - CHANGELOG.md
+    notes: Clean sync and async API design, readable tests
+
+  - repo: pytest-dev/pytest
+    url: https://github.com/pytest-dev/pytest
+    licence: MIT
+    include:
+      source_paths:
+        - src
+      test_paths:
+        - testing
+      docs_paths:
+        - doc
+      changelog_paths:
+        - changelog
+    notes: Regression discipline and readable testing idioms
+
+  - repo: pallets/click
+    url: https://github.com/pallets/click
+    licence: BSD-3-Clause
+    include:
+      source_paths:
+        - src/click
+      test_paths:
+        - tests
+      docs_paths:
+        - docs
+      changelog_paths:
+        - CHANGES.rst
+    notes: CLI ergonomics and user-facing error style
+
+  - repo: agronholm/anyio
+    url: https://github.com/agronholm/anyio
+    licence: MIT
+    include:
+      source_paths:
+        - src/anyio
+      test_paths:
+        - tests
+      docs_paths:
+        - docs
+      changelog_paths:
+        - docs/versionhistory.rst
+    notes: Boundary discipline and async abstraction
+
+  - repo: pallets/flask
+    url: https://github.com/pallets/flask
+    licence: BSD-3-Clause
+    include:
+      source_paths:
+        - src/flask
+      test_paths:
+        - tests
+      docs_paths:
+        - docs
+      changelog_paths:
+        - CHANGES.rst
+    notes: Small core, stable API patterns
+
+  - repo: python-attrs/attrs
+    url: https://github.com/python-attrs/attrs
+    licence: MIT
+    include:
+      source_paths:
+        - src/attr
+        - src/attrs
+      test_paths:
+        - tests
+      docs_paths:
+        - docs
+      changelog_paths:
+        - CHANGELOG.md
+    notes: Naming and validation ergonomics
+
+  - repo: pre-commit/pre-commit
+    url: https://github.com/pre-commit/pre-commit
+    licence: MIT
+    include:
+      source_paths:
+        - pre_commit
+      test_paths:
+        - tests
+      docs_paths:
+        - README.md
+      changelog_paths:
+        - CHANGELOG.md
+    notes: Config handling, CLI behaviour, practical engineering
+
+  - repo: pydantic/pydantic
+    url: https://github.com/pydantic/pydantic
+    licence: MIT
+    include:
+      source_paths:
+        - pydantic
+      test_paths:
+        - tests
+      docs_paths:
+        - docs
+      changelog_paths:
+        - HISTORY.md
+    notes: Boundary validation and contract orientation
+
+  - repo: psf/requests
+    url: https://github.com/psf/requests
+    licence: Apache-2.0
+    include:
+      source_paths:
+        - requests
+      test_paths:
+        - tests
+      docs_paths:
+        - docs
+      changelog_paths:
+        - HISTORY.md
+    notes: Clear API surface and compatibility discipline

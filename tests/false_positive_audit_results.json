@@ -1,0 +1,314 @@
+{
+  "flask": {
+    "hardcoded_jwt": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "weak_randomness": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "jwt_verification_policy": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "cookie_security_hard": {
+      "status": "FAIL",
+      "finding_count": 2
+    },
+    "cookie_security_soft": {
+      "status": "FAIL",
+      "finding_count": 2
+    },
+    "token_revocation": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "token_expiry": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "csrf_state_change": {
+      "status": "FAIL",
+      "finding_count": 1
+    },
+    "oauth_flow_integrity": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "auth_bypass": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "websocket_auth": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "rate_limit_wiring": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "rate_limit_backend_quality": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "xss_check": {
+      "status": "FAIL",
+      "finding_count": 1
+    },
+    "sql_injection": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "user_enumeration": {
+      "status": "FAIL",
+      "finding_count": 2
+    },
+    "client_trusted_logic": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "idor_check": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "security_event_logging": {
+      "status": "PASS",
+      "finding_count": 0
+    }
+  },
+  "fastapi": {
+    "hardcoded_jwt": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "weak_randomness": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "jwt_verification_policy": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "cookie_security_hard": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "cookie_security_soft": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "token_revocation": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "token_expiry": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "csrf_state_change": {
+      "status": "FAIL",
+      "finding_count": 6
+    },
+    "oauth_flow_integrity": {
+      "status": "FAIL",
+      "finding_count": 2
+    },
+    "auth_bypass": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "websocket_auth": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "rate_limit_wiring": {
+      "status": "FAIL",
+      "finding_count": 1
+    },
+    "rate_limit_backend_quality": {
+      "status": "FAIL",
+      "finding_count": 2
+    },
+    "xss_check": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "sql_injection": {
+      "status": "FAIL",
+      "finding_count": 2
+    },
+    "user_enumeration": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "client_trusted_logic": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "idor_check": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "security_event_logging": {
+      "status": "PASS",
+      "finding_count": 0
+    }
+  },
+  "django": {
+    "hardcoded_jwt": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "weak_randomness": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "jwt_verification_policy": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "cookie_security_hard": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "cookie_security_soft": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "token_revocation": {
+      "status": "FAIL",
+      "finding_count": 1
+    },
+    "token_expiry": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "csrf_state_change": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "oauth_flow_integrity": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "auth_bypass": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "websocket_auth": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "rate_limit_wiring": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "rate_limit_backend_quality": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "xss_check": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "sql_injection": {
+      "status": "FAIL",
+      "finding_count": 4
+    },
+    "user_enumeration": {
+      "status": "FAIL",
+      "finding_count": 1
+    },
+    "client_trusted_logic": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "idor_check": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "security_event_logging": {
+      "status": "FAIL",
+      "finding_count": 2
+    }
+  },
+  "saleor": {
+    "hardcoded_jwt": {
+      "status": "FAIL",
+      "finding_count": 11
+    },
+    "weak_randomness": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "jwt_verification_policy": {
+      "status": "FAIL",
+      "finding_count": 1
+    },
+    "cookie_security_hard": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "cookie_security_soft": {
+      "status": "FAIL",
+      "finding_count": 1
+    },
+    "token_revocation": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "token_expiry": {
+      "status": "FAIL",
+      "finding_count": 3
+    },
+    "csrf_state_change": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "oauth_flow_integrity": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "auth_bypass": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "websocket_auth": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "rate_limit_wiring": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "rate_limit_backend_quality": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "xss_check": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "sql_injection": {
+      "status": "FAIL",
+      "finding_count": 3
+    },
+    "user_enumeration": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "client_trusted_logic": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "idor_check": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "security_event_logging": {
+      "status": "FAIL",
+      "finding_count": 3
+    }
+  }
+}

@@ -1,0 +1,12 @@
+# Saturnday policy for OpenClaw skill scanning
+scope:
+  include:
+    - "*.py"
+  exclude:
+    - "test_*"
+    - "__pycache__"
+
+checks:
+  secrets: error
+  syntax: error
+  code_quality: warning

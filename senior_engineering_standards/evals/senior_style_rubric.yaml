@@ -1,0 +1,117 @@
+rubric_name: senior_style_v1
+
+dimensions:
+  - name: correctness
+    description: Solves the requested problem without breaking the stated contract
+    scale:
+      0: wrong or unsafe
+      1: mostly wrong
+      2: partial fix with significant gaps
+      3: acceptable but with notable weaknesses
+      4: correct and solid
+      5: correct, solid, and unusually robust
+
+  - name: scope_control
+    description: Avoids unrelated edits and speculative expansion
+    scale:
+      0: sprawling rewrite
+      1: major unrelated edits
+      2: several unnecessary changes
+      3: mostly contained
+      4: well contained
+      5: minimal and exact
+
+  - name: naming_and_clarity
+    description: Uses literal names and straightforward control flow
+    scale:
+      0: confusing
+      1: hard to follow
+      2: mixed clarity
+      3: readable
+      4: clear
+      5: exceptionally clear
+
+  - name: boundary_validation
+    description: Validates and normalises inputs at the edge
+    scale:
+      0: no validation
+      1: weak validation
+      2: inconsistent validation
+      3: acceptable
+      4: strong
+      5: strong and elegant
+
+  - name: error_quality
+    description: Uses specific, actionable errors without hiding failure
+    scale:
+      0: unsafe or silent
+      1: vague
+      2: mixed
+      3: acceptable
+      4: strong
+      5: excellent
+
+  - name: test_realism
+    description: Tests prove behaviour rather than merely execute code
+    scale:
+      0: fake tests
+      1: weak smoke tests
+      2: mixed quality
+      3: acceptable
+      4: strong regression discipline
+      5: exemplary behavioural testing
+
+  - name: abstraction_restraint
+    description: Avoids unnecessary indirection and speculative generalisation
+    scale:
+      0: over-engineered
+      1: too abstract
+      2: somewhat bloated
+      3: acceptable
+      4: disciplined
+      5: exceptionally disciplined
+
+  - name: domain_vocabulary_hygiene
+    description: Domain constants defined once and imported, not duplicated across modules
+    scale:
+      0: duplicated everywhere
+      1: mostly duplicated
+      2: some duplication
+      3: acceptable
+      4: well centralised
+      5: single source of truth
+
+  - name: terminology_honesty
+    description: Names and docstrings accurately reflect implementation strength
+    scale:
+      0: misleading assurance language
+      1: overclaims common
+      2: mixed accuracy
+      3: acceptable
+      4: honest and precise
+      5: exemplary naming discipline
+
+  - name: resource_lifecycle
+    description: Expensive resources built once and reused, not rebuilt per request
+    scale:
+      0: rebuilt every call
+      1: mostly per-request
+      2: inconsistent
+      3: acceptable
+      4: well managed
+      5: optimal lifecycle management
+
+pass_thresholds:
+  minimum_dimension_score: 3
+  preferred_average_score: 4.0
+
+hard_fail_conditions:
+  - fake_tests
+  - silent_exception_swallowing
+  - hidden_contract_change
+  - parsed_but_unused_cli_flag
+  - speculative_abstraction_without_need
+  - domain_constant_duplication
+  - assurance_language_on_heuristic
+  - per_request_heavyweight_rebuild
+  - missing_gitignore

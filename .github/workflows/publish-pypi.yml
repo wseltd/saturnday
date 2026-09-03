@@ -1,0 +1,118 @@
+name: Publish to PyPI
+
+# Triggered by version tags (e.g. v1.1.01, v0.3.44).
+# Publishing is blocked until a PyPI trusted-publisher (OIDC) or
+# PYPI_API_TOKEN secret is configured on the repository.
+# See RELEASING.md for the setup steps.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  id-token: write  # Required for PyPI trusted-publisher OIDC
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1: Test suite
+  # ---------------------------------------------------------------------------
+  test:
+    name: Test suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Run test suite
+        run: python -m pytest --tb=short -q
+
+  # ---------------------------------------------------------------------------
+  # Job 2: Release preflight (artefact inspection)
+  # ---------------------------------------------------------------------------
+  release-preflight:
+    name: Release preflight
+    needs: test
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install build tools
+        run: pip install build
+
+      - name: Build package
+        run: python -m build
+
+      - name: Install saturnday for preflight
+        run: pip install -e .
+
+      - name: Run release preflight
+        run: |
+          saturnday release-preflight \
+            --repo . \
+            --type python \
+            --wheel dist/*.whl \
+            --manifest .saturnday-release-manifest.yaml \
+            --output .saturnday/evidence/release/publish-gate/
+
+      - name: Verify preflight passed
+        run: |
+          python -c "
+          import json
+          from pathlib import Path
+          evidence = json.loads(Path('.saturnday/evidence/release/publish-gate/evidence.json').read_text())
+          assert evidence['disposition'] == 'PASS', f'Preflight FAILED: {evidence[\"disposition_reasons\"]}'
+          print('Release preflight PASSED')
+          "
+
+      - name: Upload preflight evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-preflight-evidence
+          path: .saturnday/evidence/release/publish-gate/
+          retention-days: 90
+
+  # ---------------------------------------------------------------------------
+  # Job 3: Publish to PyPI
+  # ---------------------------------------------------------------------------
+  publish:
+    name: Publish to PyPI
+    needs: release-preflight
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install build tools
+        run: pip install build
+
+      - name: Build package
+        run: python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        # Trusted-publisher OIDC is the preferred path.
+        # To use an API token instead, uncomment the line below and
+        # set the PYPI_API_TOKEN secret in your GitHub repository settings:
+        #
+        # with:
+        #   password: ${{ secrets.PYPI_API_TOKEN }}
+        #
+        # See RELEASING.md for full setup instructions.

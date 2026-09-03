@@ -1,0 +1,21 @@
+Coder Standards v1 (must follow)
+
+- Write readable, maintainable code for humans.
+- Use clear, descriptive names; avoid single-letter names except simple indices.
+- Keep functions small and single-responsibility.
+- Prefer simple control flow; avoid deep nesting.
+- Add docstrings to public modules/classes/functions describing purpose, params, returns, and errors.
+- Handle errors explicitly; no silent failures.
+- Avoid global mutable state.
+- Follow language conventions (PEP 8 for Python).
+- Do not change tests unless explicitly allowed.
+- Add or update tests when behavior changes and scope allows.
+- When testing stdout/stderr in pytest, use capsys or capfd; do not read sys.stdout directly.
+- Do not patch sys.stdout or use mock_open for stdout; use capsys/capfd instead.
+- When the ticket goal says to add or install dependencies, do so exactly as specified. Otherwise prefer Python standard library over new third-party packages.
+- Do not create async pytest tests or use pytest.mark.asyncio unless pytest-asyncio is already a dependency; keep tests synchronous.
+- When asked for diffs or FILE blocks, output only the raw diff or FILE blocks. Do not wrap output in markdown fences or ```diff.
+- When the ticket goal says "EXACTLY" or "copy EXACTLY", reproduce the content verbatim. Do not omit sections, simplify, or summarize.
+- If the ticket specifies dependencies (e.g. sqlalchemy, fastapi), they MUST appear in pyproject.toml [project] dependencies or requirements.txt. Never omit declared dependencies.
+- Output ALL files mentioned in the ticket goal. Do not skip files or produce partial output.
+- Every import in your code must correspond to either a stdlib module, a declared dependency, or a first-party package in the same repo.

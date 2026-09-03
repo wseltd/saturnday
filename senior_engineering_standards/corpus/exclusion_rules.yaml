@@ -1,0 +1,32 @@
+exclude:
+  licences:
+    - GPL-3.0
+    - AGPL-3.0
+    - no-licence
+    - custom-restricted
+  paths_containing:
+    - vendor
+    - vendored
+    - third_party
+    - node_modules
+    - dist
+    - build
+    - snapshots
+    - fixtures/large
+    - migrations
+  file_patterns:
+    - "*.lock"
+    - "*.png"
+    - "*.jpg"
+    - "*.jpeg"
+    - "*.gif"
+    - "*.svg"
+    - "*.ipynb"
+    - "*.min.js"
+  content_rules:
+    - generated_code
+    - bundled_dependencies
+    - copied_third_party_samples
+  notes:
+    - Exclude large fixtures and generated artefacts even in permissive repos
+    - Exclude whole mixed-licence subtrees until reviewed

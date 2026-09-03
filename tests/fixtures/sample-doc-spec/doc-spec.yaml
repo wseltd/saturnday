@@ -1,0 +1,15 @@
+document_id: validation-report
+title: "Saturnday Validation Report"
+output_format: markdown
+sources:
+  - path: data.md
+    type: reference
+sections:
+  - id: summary
+    title: "Executive Summary"
+    guidance: "Summarize the validation findings."
+    max_words: 200
+  - id: findings
+    title: "Detailed Findings"
+    guidance: "List all findings with evidence."
+    max_words: 500

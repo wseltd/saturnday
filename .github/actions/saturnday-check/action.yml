@@ -1,0 +1,91 @@
+# Saturnday Governance Check — GitHub Action (composite)
+#
+# Phase 1 target: same-repo / development usage only.
+# Installs from local checkout. Proves end-to-end flow.
+#
+# Required workflow permissions:
+#   contents: read
+#   pull-requests: write  (for PR comment posting; degrades gracefully if missing)
+
+name: 'Saturnday Governance Check'
+description: 'AI-specific governance checks on PR diffs'
+
+inputs:
+  policy:
+    description: 'Path to saturnday-policy.yaml'
+    required: false
+    default: 'saturnday-policy.yaml'
+  fail-on:
+    description: 'Disposition that fails the check: FAIL | WARN'
+    required: false
+    default: 'FAIL'
+  auto-install-deps:
+    description: 'Install project deps in temp venv to verify API usage (true/false)'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Saturnday
+      shell: bash
+      run: pip install -e ${{ github.action_path }}/../../../
+      # Installs from the repo root (action lives at .github/actions/saturnday-check/)
+
+    - name: Run governance checks
+      shell: bash
+      run: |
+        AUTO_INSTALL=""
+        if [ "${{ inputs.auto-install-deps }}" = "true" ]; then
+          AUTO_INSTALL="--auto-install-deps"
+        fi
+        POLICY_FLAG=""
+        if [ -f "${{ inputs.policy }}" ]; then
+          POLICY_FLAG="--policy ${{ inputs.policy }}"
+        fi
+        python ${{ github.action_path }}/../../../scripts/check_diff.py \
+          --repo . \
+          --diff "origin/${{ github.event.pull_request.base.ref }}...HEAD" \
+          $POLICY_FLAG \
+          --output /tmp/saturnday-evidence \
+          $AUTO_INSTALL
+      # check_diff.py writes evidence to --output dir
+      # Verified artifacts: run-metadata.json, final-disposition.json,
+      # summary.md, verification/*.json (from write_evidence_dir in evidence.py)
+
+    - name: Post findings as PR comment
+      shell: bash
+      if: always()
+      run: |
+        # Governance result is primary. Comment posting is secondary.
+        # This step must never break the governance check.
+        SUMMARY="/tmp/saturnday-evidence/summary.md"
+        DISPOSITION_FILE="/tmp/saturnday-evidence/final-disposition.json"
+        if [ -f "$SUMMARY" ] && [ -f "$DISPOSITION_FILE" ]; then
+          DISPOSITION=$(python -c "import json; print(json.load(open('$DISPOSITION_FILE'))['disposition'])" 2>/dev/null || echo "UNKNOWN")
+          echo "## Saturnday Governance: $DISPOSITION" > /tmp/pr-comment.md
+          cat "$SUMMARY" >> /tmp/pr-comment.md
+          # Post via gh CLI if available and auth works
+          if command -v gh &>/dev/null; then
+            gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/pr-comment.md 2>/dev/null || true
+          fi
+        fi
+
+    - name: Check disposition threshold
+      shell: bash
+      run: |
+        DISPOSITION_FILE="/tmp/saturnday-evidence/final-disposition.json"
+        if [ ! -f "$DISPOSITION_FILE" ]; then
+          echo "No disposition file found — governance check did not complete"
+          exit 1
+        fi
+        DISPOSITION=$(python -c "import json; print(json.load(open('$DISPOSITION_FILE'))['disposition'])")
+        FAIL_ON="${{ inputs.fail-on }}"
+        echo "Disposition: $DISPOSITION (threshold: $FAIL_ON)"
+        if [ "$FAIL_ON" = "WARN" ] && [ "$DISPOSITION" != "PASS" ]; then
+          echo "Disposition $DISPOSITION exceeds threshold $FAIL_ON"
+          exit 1
+        elif [ "$FAIL_ON" = "FAIL" ] && [ "$DISPOSITION" = "FAIL" ]; then
+          echo "Disposition FAIL"
+          exit 1
+        fi

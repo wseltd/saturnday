@@ -1,0 +1,17 @@
+# Saturnday governance policy for the saturnday-public repository.
+# This protects intentional test fixtures from being "repaired"
+# and exempts structural project-level findings.
+
+schema_version: "1.0.0"
+
+scope:
+  denied_paths:
+    - "tests/fixtures/**"
+
+expected_findings:
+  # Project-level findings inherent to a library repo structure.
+  # These are NOT security exemptions.
+  - missing_license
+  - missing_readme
+  - missing_project_config
+  - project_runnable

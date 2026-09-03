@@ -1,0 +1,123 @@
+name: Saturnday Guard
+description: >
+  Run Saturnday governance checks on a pull request diff and block merge on FAIL.
+  When added to required status checks, this prevents merging code that violates
+  AI governance policy.
+
+inputs:
+  repo-path:
+    description: Path to the git repository to check (default: current directory)
+    required: false
+    default: "."
+  diff-range:
+    description: >
+      Git diff range to inspect. Defaults to the PR base..HEAD range when
+      GITHUB_BASE_REF is set, otherwise falls back to HEAD~1..HEAD.
+    required: false
+    default: ""
+  policy:
+    description: Path to a custom saturnday-policy.yaml (optional)
+    required: false
+    default: ""
+  post-comment:
+    description: Post a PR comment with findings when gh CLI is available (true/false)
+    required: false
+    default: "true"
+  saturnday-version:
+    description: Saturnday package version to install (default: latest)
+    required: false
+    default: ""
+
+outputs:
+  disposition:
+    description: Governance disposition — PASS or FAIL
+    value: ${{ steps.guard.outputs.disposition }}
+  evidence-path:
+    description: Path to the evidence pack directory
+    value: ${{ steps.guard.outputs.evidence_path }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install Saturnday
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.saturnday-version }}" ]; then
+          pip install --quiet "saturnday==${{ inputs.saturnday-version }}"
+        else
+          pip install --quiet saturnday
+        fi
+
+    - name: Resolve diff range
+      id: diff
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.diff-range }}" ]; then
+          echo "range=${{ inputs.diff-range }}" >> "$GITHUB_OUTPUT"
+        elif [ -n "${{ github.event.pull_request.base.sha }}" ]; then
+          echo "range=${{ github.event.pull_request.base.sha }}..HEAD" >> "$GITHUB_OUTPUT"
+        else
+          echo "range=HEAD~1..HEAD" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Run Saturnday governance check
+      id: guard
+      shell: bash
+      run: |
+        EVIDENCE_DIR="${RUNNER_TEMP}/saturnday-evidence"
+        mkdir -p "$EVIDENCE_DIR"
+
+        POLICY_ARG=""
+        if [ -n "${{ inputs.policy }}" ]; then
+          POLICY_ARG="--policy ${{ inputs.policy }}"
+        fi
+
+        set +e
+        saturnday check \
+          --repo "${{ inputs.repo-path }}" \
+          --diff "${{ steps.diff.outputs.range }}" \
+          --strict \
+          --output "$EVIDENCE_DIR" \
+          $POLICY_ARG
+        EXIT_CODE=$?
+        set -e
+
+        if [ $EXIT_CODE -eq 0 ]; then
+          DISPOSITION="PASS"
+        else
+          DISPOSITION="FAIL"
+        fi
+
+        echo "disposition=$DISPOSITION" >> "$GITHUB_OUTPUT"
+        echo "evidence_path=$EVIDENCE_DIR" >> "$GITHUB_OUTPUT"
+        echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+
+        exit $EXIT_CODE
+
+    - name: Post PR comment with findings
+      if: >
+        always() &&
+        inputs.post-comment == 'true' &&
+        github.event_name == 'pull_request' &&
+        steps.guard.outputs.disposition == 'FAIL'
+      shell: bash
+      run: |
+        EVIDENCE_DIR="${RUNNER_TEMP}/saturnday-evidence"
+        COMMENT_BODY="### Saturnday Guard — FAIL\n\nGovernance checks failed on this PR.\n\n"
+
+        # Append findings summary if evidence pack exists
+        EVIDENCE_FILE=$(find "$EVIDENCE_DIR" -name "evidence_pack.json" 2>/dev/null | head -1)
+        if [ -n "$EVIDENCE_FILE" ]; then
+          COMMENT_BODY+="Evidence: \`$EVIDENCE_FILE\`\n\n"
+          COMMENT_BODY+="Run \`saturnday check --repo . --diff ${{ github.event.pull_request.base.sha }}..HEAD\` locally to reproduce.\n"
+        fi
+
+        # Post comment only when gh CLI is available and GITHUB_TOKEN is set
+        if command -v gh &>/dev/null && [ -n "$GITHUB_TOKEN" ]; then
+          printf "%b" "$COMMENT_BODY" | gh pr comment "${{ github.event.pull_request.number }}" --body-file -
+        else
+          echo "gh CLI not available or GITHUB_TOKEN not set — skipping PR comment."
+          echo "Disposition: FAIL"
+        fi
+      env:
+        GITHUB_TOKEN: ${{ github.token }}

@@ -1,0 +1,35 @@
+# OpenClaw Skills Governance Preset — Post-Calibration v4 (2026-03-13)
+#
+# This preset is designed for passive corpus scanning of OpenClaw skill repos.
+# Severity levels set based on calibration results (docs/calibration_results.md).
+#
+# Uses policy family names. TS checks (_ts suffix) and Python checks resolve
+# to these families via FAMILY_MAP in policy_manifest.py.
+
+schema_version: "1.0.0"
+
+checks:
+  # HARD FAIL — high confidence, low false-positive rate
+  secrets: error
+  fake_tests: error
+
+  # Calibrated — v2 showed 86% precision (43/50 TP) after removing
+  # external_prompt_url heuristic and tightening to LLM-specific keywords.
+  # Materially improved but not yet verified on a second corpus.
+  prompt_injection: error
+
+  # REDESIGNED v3 — registry-verified existence check replaces allowlist.
+  # v3 calibration: 86% precision (43/50 TP). Remaining FPs are template
+  # literal extraction bugs (${var} inside dynamic requires).
+  hallucinated_imports: warning
+
+  # DISABLED — v4: download-count gated (candidate <1K, target >100K).
+  # Eliminates all v3 false positives. 0 findings on calibration corpus
+  # (no actual typosquats present). Re-enable requires empirical evidence.
+  typosquat: "off"
+
+  # WARN — informational
+  placeholders: warning
+
+  # WARN — emitted only when Node runtime is available, SKIPPED with metadata otherwise
+  syntax: warning

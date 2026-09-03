@@ -1,0 +1,9 @@
+{
+  "name": "@saturnday/sample-fixture",
+  "version": "0.0.1",
+  "description": "Fixture npm package for release-security testing",
+  "main": "index.js",
+  "files": ["index.js", "lib/"],
+  "license": "MIT",
+  "private": true
+}
