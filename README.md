@@ -2,7 +2,7 @@
 
 AI coding tools generate code fast, but the output is weakly governed — no planning, no security checks, no evidence trail. Teams adopting AI coders risk shipping hallucinated imports, leaked secrets, placeholder stubs, and untested code at speed.
 
-Saturnday adds governance around the AI coding workflow: structured planning, 62 deterministic checks on every commit, automated repair of findings, and timestamped evidence for every change. It works with any AI coder that can commit to git — you keep your tools, Saturnday keeps quality, security, and release hygiene under control.
+Saturnday adds governance around the AI coding workflow: structured planning, 60+ deterministic checks on every commit, automated repair of findings, and timestamped evidence for every change. The exact number that runs depends on your repo — TypeScript, Docker, Terraform and Kubernetes checks only fire when those files are present. It works with any AI coder that can commit to git — you keep your tools, Saturnday keeps quality, security, and release hygiene under control.
 
 **v1.1.5** | Python 3.10+ | MIT License
 
