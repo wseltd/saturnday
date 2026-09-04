@@ -96,6 +96,62 @@ saturnday start
 
 Saturnday detects installed backends, installs governance hooks, and launches the workflow. Describe what you want to build, and Saturnday will plan it into governed tickets, execute them through your chosen AI coder, check every change, and produce evidence.
 
+## Recommended workflow (saves tokens and subscription usage)
+
+The default `saturnday start` flow runs a full governance pass **after every
+ticket**. That is the safest setting, but on a large plan it is also the most
+expensive — each pass costs another round of coder tokens and usage.
+
+If you are working interactively with Claude Code, this flow gives the same
+governed result for a fraction of the usage:
+
+**1. Start Saturnday**
+
+```bash
+saturnday start
+```
+
+**2. Ask for a plan, and say explicitly that it must not build yet**
+
+```
+Plan this with Saturnday but do not start coding yet:
+build a REST API with authentication, rate limiting, and tests.
+```
+
+Saturnday plans the tickets and stops. Review them here — this is the cheapest
+point at which to correct direction.
+
+**3. Once the tickets exist, have the coder implement them directly**
+
+```
+The plan looks right. Now code ticket T001 directly.
+```
+
+Work through the tickets with the coder. Driving the coder directly, rather
+than through the per-ticket run loop, avoids a full governance pass between
+every ticket.
+
+**4. Run governance once, at the end**
+
+```bash
+saturnday governance --repo . --full
+saturnday repair --repo . --backend claude-cli
+```
+
+### Why this saves usage
+
+| | Per-ticket governance | Plan → code → govern once |
+|---|---|---|
+| Governance passes | one per ticket | one at the end |
+| Coder tokens | highest | lowest |
+| Feedback speed | immediate per ticket | at the end |
+| Best for | unattended runs, CI | interactive work with a subscription coder |
+
+**Trade-off:** governing once at the end means a problem introduced early is not
+caught until the end, so the fix may touch more code. For unattended runs or
+security-sensitive work, keep the per-ticket loop. The pre-commit hook applies
+either way — commits failing governance are blocked regardless.
+
 ## Supported backends
 
 Saturnday works with these coder backends:
