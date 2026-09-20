@@ -367,6 +367,10 @@ def build_parser() -> argparse.ArgumentParser:
     # --- Run: validate-plan ---
     validate_parser = subparsers.add_parser("validate-plan", help="Validate a plan and print errors")
     validate_parser.add_argument("--plan", required=True, help="Path to the project plan JSON file")
+    validate_parser.add_argument(
+        "--repo", default=".",
+        help="Repository root used to resolve verify_cmd tools against declared dependencies.",
+    )
     validate_parser.add_argument("--verbose", "-v", action="store_true")
 
     # --- Run: explain-failure ---
@@ -1367,7 +1371,44 @@ def _cmd_validate_plan(args: argparse.Namespace) -> int:
     except Exception as exc:
         print(f"\nContract verification failed: {exc}")
 
-    return 0
+    interface_errors = _report_interface_contract(raw, getattr(args, "repo", "."))
+
+    return 1 if interface_errors else 0
+
+
+def _report_interface_contract(raw: dict, repo: str) -> int:
+    """Print interface-contract findings and return the error count.
+
+    IC-001 (duplicate provides) is an error; IC-002 (unresolvable verify_cmd
+    tool) is a warning and never changes the exit code on its own.
+    """
+    try:
+        from saturnday.interface_contract import check_interface_contract
+    except ImportError:
+        return 0
+
+    try:
+        findings = check_interface_contract(raw, Path(repo) if repo else None)
+    except Exception as exc:
+        print(f"\nInterface contract check failed: {exc}")
+        return 0
+
+    if not findings:
+        print("\nInterface contract: PASS (no collisions or unresolved tools)")
+        return 0
+
+    errors = [f for f in findings if f.severity == "error"]
+    warnings = [f for f in findings if f.severity != "error"]
+
+    print(
+        f"\nInterface contract: {len(errors)} error(s), {len(warnings)} warning(s)"
+    )
+    for finding in errors:
+        print(f"  - {finding.format_line()}")
+    for finding in warnings:
+        print(f"  - {finding.format_line()}")
+
+    return len(errors)
 
 
 def _cmd_explain_failure(args: argparse.Namespace) -> int:

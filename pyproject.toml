@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "saturnday"
-version = "1.1.5"
+version = "1.1.6"
 description = "Execution governor for AI-generated code — Guard, Run, and Repair in one package"
 readme = "README.md"
 requires-python = ">=3.10"

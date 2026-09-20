@@ -4,7 +4,7 @@ AI coding tools generate code fast, but the output is weakly governed — no pla
 
 Saturnday adds governance around the AI coding workflow: structured planning, 60+ deterministic checks on every commit, automated repair of findings, and timestamped evidence for every change. The exact number that runs depends on your repo — TypeScript, Docker, Terraform and Kubernetes checks only fire when those files are present. It works with any AI coder that can commit to git — you keep your tools, Saturnday keeps quality, security, and release hygiene under control.
 
-**v1.1.5** | Python 3.10+ | MIT License
+**v1.1.6** | Python 3.10+ | MIT License
 
 ## About this repository
 
@@ -270,6 +270,44 @@ expected_findings:
 ```
 
 `saturnday start` offers a strict/relaxed mode choice. Relaxed mode creates a policy file that exempts publish-readiness checks — useful for private repos and early development.
+
+## Interface contract checks
+
+`saturnday validate-plan` checks that a plan's tickets agree with each other
+before any of them run.
+
+```bash
+saturnday validate-plan --plan .saturnday/plan.json --repo .
+```
+
+| Rule | Severity | Catches |
+|------|----------|---------|
+| `IC-001` | error | Two tickets each claiming the same file or the same exported symbol |
+| `IC-002` | warning | A `verify_cmd` naming an executable that is not a baseline tool, not in `package.json`/`pyproject.toml`, and not on `PATH` |
+
+IC-001 is opt-in. A ticket declares what it owns:
+
+```json
+{
+  "ticket_id": "T031",
+  "provides": {
+    "files": ["tests/fixtures/loader.ts"],
+    "exports": ["defineFixture(fixture: SyntheticFixture): SyntheticFixture"]
+  }
+}
+```
+
+Ownership is compared on the symbol name, not the full signature, so two
+tickets exporting `defineFixture` with different parameter names still
+collide. A plan with no `provides` anywhere produces no IC-001 findings, so
+existing plans are unaffected.
+
+IC-002 is a warning and never changes the exit code on its own: every plan has
+`verify_cmd` values, and whether a tool resolves depends on the machine running
+the check.
+
+These checks run only from `validate-plan`. Plan loading and the run loop are
+unchanged.
 
 ## Baseline ratchet
 
